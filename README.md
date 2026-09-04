@@ -38,7 +38,7 @@ e imprimir a PDF.
 
 | Archivo | Descripción |
 |---|---|
-| `auditoria-sgi-supabase.html` | **Versión principal.** App web conectada a Supabase: autenticación real, RLS y sincronización en vivo entre auditores. |
+| `index.html` | **Versión principal.** App web conectada a Supabase: autenticación real, RLS y sincronización en vivo entre auditores. Se sirve en la raíz del dominio. |
 | `auditoria-sgi.html` | Versión autónoma publicada como Artifact de Claude, con almacenamiento propio. Se conserva como respaldo. |
 
 Ambas son un único archivo HTML sin proceso de compilación.
@@ -90,7 +90,7 @@ Reglas aplicadas:
 ## Configuración
 
 La URL del proyecto y la clave *publishable* de Supabase están al inicio del bloque
-`<script>` de `auditoria-sgi-supabase.html`:
+`<script>` de `index.html`:
 
 ```js
 const SUPABASE_URL = "https://<proyecto>.supabase.co";
