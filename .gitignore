@@ -1,0 +1,17 @@
+# Archivos temporales de construcción
+_parte*.html
+_sb_*.html
+_serve.ps1
+_datos.js
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
+
+# Dependencias (por si más adelante se agrega tooling)
+node_modules/
