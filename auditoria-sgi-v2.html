@@ -1478,6 +1478,17 @@ const Repo = {
     const {error} = await sb.from("respuestas").delete()
       .eq("auditoria_id",auditId).eq("item_id",itemId);
     if(error) throw error;
+  },
+  async contarRespuestas(auditId){
+    const {count,error} = await sb.from("respuestas")
+      .select("item_id",{count:"exact",head:true}).eq("auditoria_id",auditId);
+    if(error) throw error;
+    return count||0;
+  },
+  async deleteAuditoria(id){
+    // respuestas cae por ON DELETE CASCADE
+    const {error} = await sb.from("auditorias").delete().eq("id",id);
+    if(error) throw error;
   }
 };
 
@@ -1579,6 +1590,7 @@ $("#btnLogout").onclick = async function(){ await sb.auth.signOut(); salirUI(); 
 
 function puedeEditar(){ return S.perfil && S.perfil.rol!=="consulta"; }
 function puedeGestionarAuditorias(){ return S.perfil && (S.perfil.rol==="admin"||S.perfil.rol==="lider"); }
+function esAdmin(){ return !!(S.perfil && S.perfil.rol==="admin"); }
 
 async function cargarTodo(){
   try{ S.auditorias = await Repo.listAuditorias(); }
@@ -1666,19 +1678,29 @@ function viewDashboard(){
 }
 function tablaAuditorias(lista){
   if(!lista.length) return '<div class="card"><div class="empty">Todavía no hay auditorías registradas.</div></div>';
+  const borrar=esAdmin();
   let h='<div class="card"><div class="tbl-wrap"><table><thead><tr>'+
-    '<th>Código / Sitio</th><th>Norma</th><th>Fechas</th><th>Estado</th><th>Avance</th><th class="num">Cumpl.</th><th class="num">NC</th></tr></thead><tbody>';
+    '<th>Código / Sitio</th><th>Norma</th><th>Fechas</th><th>Estado</th><th>Avance</th><th class="num">Cumpl.</th><th class="num">NC</th>'+
+    (borrar?'<th></th>':'')+'</tr></thead><tbody>';
   lista.forEach(function(a){
-    const n=NORMA_BY_ID[a.normaId]||{corto:"—"};
-    const r=a.resumen||{total:0,pendiente:0,pct:0,ncTotal:0,evaluados:0};
+    const n=NORMA_BY_ID[a.normaId]||{corto:"—",items:[]};
+    const g=a.resumen||{total:0,pendiente:0,pct:0,ncTotal:0,evaluados:0};
+    // el total lo manda la lista de verificación vigente, no el resumen guardado:
+    // si la lista creció, el denominador de una auditoría antigua quedaría corto
+    const total=(n.items||[]).length||(g.total||0);
+    const hechos=Math.max(0,(g.total||0)-(g.pendiente||0));
+    const r=Object.assign({cumple:0,parcial:0,noCumple:0,na:0},g,
+      {total:total,pendiente:Math.max(0,total-hechos)});
     h+='<tr class="clickable" data-act="abrirAuditoria" data-id="'+esc(a.id)+'">'+
       '<td><strong>'+esc(a.codigo||"Auditoría")+'</strong><div class="muted" style="font-size:12px">'+esc(a.sede||a.empresa||"")+'</div></td>'+
       '<td>'+esc(n.corto)+'</td>'+
       '<td class="mono">'+esc(a.fechaInicio||"—")+(a.fechaFin?" → "+esc(a.fechaFin):"")+'</td>'+
       '<td>'+badgeEstado(a.estado)+'</td>'+
-      '<td style="min-width:120px">'+barraHTML(r)+'<div class="muted mono" style="font-size:11px;margin-top:3px">'+((r.total||0)-(r.pendiente||0))+'/'+(r.total||0)+' evaluados</div></td>'+
+      '<td style="min-width:120px">'+barraHTML(r)+'<div class="muted mono" style="font-size:11px;margin-top:3px">'+hechos+'/'+total+' evaluados</div></td>'+
       '<td class="num" style="color:'+colorPct(r.pct||0)+';font-weight:600">'+(r.evaluados?pctFmt(r.pct):"—")+'</td>'+
-      '<td class="num">'+(r.ncTotal||0)+'</td></tr>';
+      '<td class="num">'+(r.ncTotal||0)+'</td>'+
+      (borrar?'<td class="num"><button class="btn btn-sm btn-danger" data-act="eliminarAuditoria" data-id="'+esc(a.id)+'" title="Eliminar esta auditoría">Eliminar</button></td>':'')+
+      '</tr>';
   });
   return h+'</tbody></table></div></div>';
 }
@@ -1757,7 +1779,8 @@ function viewAuditoria(){
   $("#topTitle").textContent=a.codigo||"Auditoría";
   $("#topActions").innerHTML='<button class="btn" data-act="ir" data-view="auditorias">← Auditorías</button>'+
     '<button class="btn" data-act="informeDeAuditoria">Ver informe</button>'+
-    (puedeGestionarAuditorias()?'<button class="btn" data-act="editarAuditoria">Editar datos</button>':'');
+    (puedeGestionarAuditorias()?'<button class="btn" data-act="editarAuditoria">Editar datos</button>':'')+
+    (esAdmin()?'<button class="btn btn-danger" data-act="eliminarAuditoria" data-id="'+esc(a.id)+'">Eliminar auditoría</button>':'');
 
   let h='<div class="view">';
   h+='<div class="card card-pad section"><div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start">'+
@@ -2355,6 +2378,38 @@ function wire(){
           toast("Requisito guardado.","ok");
           render();
         }catch(e){ el.disabled=false; toast("No se pudo guardar: "+e.message,"error"); }
+      };
+    }
+    else if(act==="eliminarAuditoria"){
+      el.onclick=async function(ev){
+        ev.stopPropagation();                 // la fila abre la auditoría; el botón no
+        const id=el.dataset.id;
+        const a=S.auditorias.filter(function(x){return x.id===id;})[0];
+        if(!a) return;
+        const n=NORMA_BY_ID[a.normaId]||{corto:"—"};
+        let cuantas=null;
+        try{ cuantas=await Repo.contarRespuestas(id); }catch(e){}
+        abrirModal("Eliminar la auditoría",
+          '<p style="font-size:14px;line-height:1.55">Se eliminará <strong>'+esc(a.codigo||"la auditoría")+'</strong>'+
+            (a.sede||a.empresa?' de '+esc(a.sede||a.empresa):'')+' ('+esc(n.corto)+').</p>'+
+          '<p style="font-size:13.5px;line-height:1.55;margin-top:8px">'+
+            (cuantas===null
+              ? 'Se borrarán también todos los registros de requisitos que tenga.'
+              : (cuantas>0
+                  ? 'Se borrarán también sus <strong>'+cuantas+' registro(s)</strong> de requisitos, con su evidencia, hallazgos y declaraciones.'
+                  : 'Todavía no tiene registros de requisitos.'))+'</p>'+
+          '<p style="font-size:13px;color:var(--bad);margin-top:8px">Esta acción no se puede deshacer.</p>',
+          async function(){
+            try{
+              await Repo.deleteAuditoria(id);
+              S.auditorias=S.auditorias.filter(function(x){return x.id!==id;});
+              if(S.auditoria && S.auditoria.id===id){
+                S.auditoria=null; S.respuestas={}; S.respuestasDe=null; S.view="auditorias";
+              }
+              toast("Auditoría eliminada.","ok");
+              render();
+            }catch(e){ toast("No se pudo eliminar: "+e.message,"error"); }
+          },"Eliminar auditoría");
       };
     }
     else if(act==="modificarItem"){

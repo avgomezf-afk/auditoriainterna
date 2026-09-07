@@ -79,7 +79,18 @@ La aplicación llega hasta la declaración del hallazgo. La gestión de las acci
 correctivas —responsable, fecha compromiso, causa raíz, avance y cierre— se lleva en otra
 plataforma, así que aquí no se registra.
 
-### Guardar, modificar y eliminar
+### Eliminar una auditoría
+
+En **Programa de auditorías**, el administrador tiene un botón **Eliminar** en cada fila,
+y otro en la cabecera de la auditoría abierta. La confirmación indica cuántos registros de
+requisitos se perderán antes de borrar. Al eliminar la auditoría caen con ella todas sus
+respuestas.
+
+El avance de cada fila usa siempre el tamaño de la lista de verificación vigente. Si la
+lista crece —por ejemplo al expandir los requisitos transversales—, las auditorías
+anteriores muestran el denominador actualizado en lugar del que tenían guardado.
+
+### Guardar, modificar y eliminar un requisito
 
 Cada requisito tiene su propia barra de acciones con el estado del registro:
 
@@ -151,7 +162,7 @@ Ambas son un único archivo HTML sin proceso de compilación.
 
 | Rol | Permisos |
 |---|---|
-| Administrador | Gestiona usuarios y roles, crea y elimina auditorías, registra hallazgos |
+| Administrador | Gestiona usuarios y roles, crea y **elimina** auditorías, registra hallazgos |
 | Auditor líder | Crea auditorías y registra hallazgos |
 | Auditor | Registra evidencia y hallazgos |
 | Consulta | Solo lectura de listas de verificación e informes |
