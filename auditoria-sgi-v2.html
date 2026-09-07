@@ -1377,14 +1377,14 @@ function audToDB(a){
 function respFromDB(r){
   return {cumple:r.cumple,tipoHallazgo:r.tipo_hallazgo||"",evidencia:r.evidencia||"",
     hallazgo:r.hallazgo||"",declaracionNC:r.declaracion_nc||"",responsable:r.responsable||"",
-    fechaCompromiso:r.fecha_compromiso||"",auditor:r.auditor||"",
+    auditor:r.auditor||"",
     ncAutogenerada:r.nc_autogenerada===true,actualizadoEn:r.actualizado_en};
 }
 function respToDB(auditId,itemId,r){
   return {auditoria_id:auditId,item_id:itemId,cumple:r.cumple||"Pendiente",
     tipo_hallazgo:nn(r.tipoHallazgo),evidencia:nn(r.evidencia),hallazgo:nn(r.hallazgo),
     declaracion_nc:nn(r.declaracionNC),responsable:nn(r.responsable),
-    fecha_compromiso:nn(r.fechaCompromiso),auditor:nn(r.auditor),
+    auditor:nn(r.auditor),
     nc_autogenerada:r.ncAutogenerada===true,
     actualizado_por:S.user?S.user.id:null};
 }
@@ -1824,9 +1824,7 @@ function ncBoxHTML(it,r,dis){
     '<span class="muted" style="font-size:11.5px">requisito + evidencia objetiva + desviación</span>'+
     (dis?'':'<button class="btn btn-sm" data-act="generarNC" style="margin-left:auto">Redactar automáticamente</button>')+'</div>'+
     '<textarea data-f="declaracionNC" rows="4" placeholder="Redacte la no conformidad citando el requisito incumplido, la evidencia objetiva revisada y la desviación encontrada."'+dis+'>'+esc(r.declaracionNC||"")+'</textarea>'+
-    '<div style="display:grid;gap:9px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">'+
-    '<div class="field"><label>Responsable de la acción</label><input type="text" data-f="responsable" value="'+esc(r.responsable||"")+'" placeholder="Nombre / puesto"'+dis+'></div>'+
-    '<div class="field"><label>Fecha compromiso</label><input type="date" data-f="fechaCompromiso" value="'+esc(r.fechaCompromiso||"")+'"'+dis+'></div></div></div>';
+    '<div class="field"><label>Responsable de la acción</label><input type="text" data-f="responsable" value="'+esc(r.responsable||"")+'" placeholder="Nombre / puesto"'+dis+'></div></div>';
 }
 function puntoFinal(s){
   const t=String(s||"").trim();
@@ -2042,7 +2040,7 @@ function informeHTML(a,n,procesoFiltro){
       '<p><strong>'+esc(it.t)+'</strong></p>'+
       '<p>'+esc(r.declaracionNC||redactarNC(it,r)).replace(/\n/g,"<br>")+'</p>'+
       (r.evidencia?'<p style="font-size:12.5px"><strong>Evidencia objetiva:</strong> '+esc(r.evidencia)+'</p>':'')+
-      ((r.responsable||r.fechaCompromiso)?'<p style="font-size:12.5px" class="muted"><strong>Responsable:</strong> '+esc(r.responsable||"por definir")+' · <strong>Fecha compromiso:</strong> '+esc(r.fechaCompromiso||"por definir")+'</p>':'')+
+      (r.responsable?'<p style="font-size:12.5px" class="muted"><strong>Responsable:</strong> '+esc(r.responsable)+'</p>':'')+
       '</div>';
   });
   h+='<h2>6. Desarrollo de la auditoría por proceso</h2>';

@@ -55,7 +55,10 @@ Los campos siguen el orden real de la verificación:
 3. **Resultado**: Cumple / Cumple Parcialmente / No Cumple / No Aplica / Pendiente
 4. **Tipo de hallazgo**: Conformidad, Observación, NC Menor, NC Mayor, NC Crítica
 5. **Declaración de hallazgo sugerido**: requisito + evidencia objetiva + desviación,
-   con responsable de la acción y fecha compromiso
+   con el responsable de la acción
+
+El seguimiento de las acciones correctivas —fechas compromiso, avance y cierre— se lleva
+en otra plataforma, así que la aplicación no lo registra.
 
 Además, cada requisito muestra los **documentos sugeridos** que conviene solicitar y, si
 pertenece a un grupo de requisitos comunes, las cláusulas equivalentes de los otros marcos.
