@@ -1376,14 +1376,14 @@ function audToDB(a){
 }
 function respFromDB(r){
   return {cumple:r.cumple,tipoHallazgo:r.tipo_hallazgo||"",evidencia:r.evidencia||"",
-    hallazgo:r.hallazgo||"",declaracionNC:r.declaracion_nc||"",responsable:r.responsable||"",
+    hallazgo:r.hallazgo||"",declaracionNC:r.declaracion_nc||"",
     auditor:r.auditor||"",
     ncAutogenerada:r.nc_autogenerada===true,actualizadoEn:r.actualizado_en};
 }
 function respToDB(auditId,itemId,r){
   return {auditoria_id:auditId,item_id:itemId,cumple:r.cumple||"Pendiente",
     tipo_hallazgo:nn(r.tipoHallazgo),evidencia:nn(r.evidencia),hallazgo:nn(r.hallazgo),
-    declaracion_nc:nn(r.declaracionNC),responsable:nn(r.responsable),
+    declaracion_nc:nn(r.declaracionNC),
     auditor:nn(r.auditor),
     nc_autogenerada:r.ncAutogenerada===true,
     actualizado_por:S.user?S.user.id:null};
@@ -1823,8 +1823,7 @@ function ncBoxHTML(it,r,dis){
     '<span class="js-ncauto nc-auto"'+(r.ncAutogenerada?'':' hidden')+'>redactado automáticamente</span>'+
     '<span class="muted" style="font-size:11.5px">requisito + evidencia objetiva + desviación</span>'+
     (dis?'':'<button class="btn btn-sm" data-act="generarNC" style="margin-left:auto">Redactar automáticamente</button>')+'</div>'+
-    '<textarea data-f="declaracionNC" rows="4" placeholder="Redacte la no conformidad citando el requisito incumplido, la evidencia objetiva revisada y la desviación encontrada."'+dis+'>'+esc(r.declaracionNC||"")+'</textarea>'+
-    '<div class="field"><label>Responsable de la acción</label><input type="text" data-f="responsable" value="'+esc(r.responsable||"")+'" placeholder="Nombre / puesto"'+dis+'></div></div>';
+    '<textarea data-f="declaracionNC" rows="4" placeholder="Redacte la no conformidad citando el requisito incumplido, la evidencia objetiva revisada y la desviación encontrada."'+dis+'>'+esc(r.declaracionNC||"")+'</textarea></div>';
 }
 function puntoFinal(s){
   const t=String(s||"").trim();
@@ -2040,7 +2039,6 @@ function informeHTML(a,n,procesoFiltro){
       '<p><strong>'+esc(it.t)+'</strong></p>'+
       '<p>'+esc(r.declaracionNC||redactarNC(it,r)).replace(/\n/g,"<br>")+'</p>'+
       (r.evidencia?'<p style="font-size:12.5px"><strong>Evidencia objetiva:</strong> '+esc(r.evidencia)+'</p>':'')+
-      (r.responsable?'<p style="font-size:12.5px" class="muted"><strong>Responsable:</strong> '+esc(r.responsable)+'</p>':'')+
       '</div>';
   });
   h+='<h2>6. Desarrollo de la auditoría por proceso</h2>';
@@ -2096,7 +2094,7 @@ function conclusionHTML(a,n,st,proceso){
    ===================================================================== */
 function viewHallazgos(){
   let h='<div class="view"><div class="card card-pad section" style="background:var(--surface-2)">'+
-    '<div class="serif" style="color:var(--ink-2)">Este registro consolida las no conformidades declaradas en cada auditoría. Abra una auditoría para ver el detalle de cada declaración, su responsable y su fecha compromiso.</div></div>';
+    '<div class="serif" style="color:var(--ink-2)">Este registro consolida las no conformidades declaradas en cada auditoría. Abra una auditoría para ver el detalle de cada declaración. La asignación y el seguimiento de las acciones correctivas se llevan en la plataforma de acciones.</div></div>';
   const filas=S.auditorias.filter(function(a){return a.resumen&&a.resumen.ncTotal;});
   if(!filas.length) return h+'<div class="card"><div class="empty">No hay no conformidades declaradas en ninguna auditoría.</div></div></div>';
   h+='<div class="card"><div class="tbl-wrap"><table><thead><tr><th>Auditoría</th><th>Norma</th><th class="num">Críticas</th><th class="num">Mayores</th><th class="num">Menores</th><th class="num">Total</th><th></th></tr></thead><tbody>';
