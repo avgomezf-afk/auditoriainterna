@@ -60,6 +60,25 @@ La aplicación llega hasta la declaración del hallazgo. La gestión de las acci
 correctivas —responsable, fecha compromiso, causa raíz, avance y cierre— se lleva en otra
 plataforma, así que aquí no se registra.
 
+### Guardar, modificar y eliminar
+
+Cada requisito tiene su propia barra de acciones con el estado del registro:
+
+| Estado | Qué muestra | Acciones |
+|---|---|---|
+| **Sin registrar** | Todavía no se le ha dado resultado | Guardar |
+| **Pendiente de guardar** | Hay captura sin confirmar | Guardar · Cancelar · Eliminar |
+| **Registrado** | Quién lo registró y cuándo | Modificar · Eliminar |
+
+Una vez registrado, los campos quedan **bloqueados**: para cambiar la evidencia hay que
+pulsar **Modificar**, y **Cancelar** descarta los cambios y recupera lo último guardado.
+**Eliminar** borra todo lo registrado del requisito —evidencia, observaciones, resultado,
+tipo de hallazgo y declaración— previa confirmación, y lo devuelve a pendiente.
+
+El bloqueo es para no alterar por descuido una evidencia ya registrada. La aplicación
+sigue guardando en segundo plano mientras se captura, de modo que nada se pierde si se
+cierra el navegador antes de pulsar Guardar.
+
 Además, cada requisito muestra los **documentos sugeridos** que conviene solicitar y, si
 pertenece a un grupo de requisitos comunes, las cláusulas equivalentes de los otros marcos.
 

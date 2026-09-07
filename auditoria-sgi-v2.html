@@ -261,6 +261,17 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var
 .nc-auto[hidden]{display:none}
 .saved-flag{font-family:var(--font-m);font-size:10.5px;color:var(--ok);opacity:0;transition:opacity .2s}
 .saved-flag.show{opacity:1}
+.item-acciones{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between;
+  margin-top:12px;padding-top:10px;border-top:1px solid var(--line-2)}
+.item-acciones .est{font-family:var(--font-m);font-size:11px;color:var(--ink-3)}
+.item-acciones .est.ok{color:var(--ok)}
+.item-acciones .est.edit{color:var(--warn)}
+.item-acciones .bts{display:flex;gap:7px;flex-wrap:wrap}
+.btn-danger{border-color:var(--bad-line);color:var(--bad)}
+.btn-danger:hover{background:var(--bad-bg)}
+.item.bloqueado .item-fields textarea,
+.item.bloqueado .item-fields select,
+.item.bloqueado .item-fields input{background:var(--surface-2);color:var(--ink-2);cursor:default}
 .filters{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .filters input[type=text]{max-width:280px}
 .filters select{max-width:230px}
@@ -1256,6 +1267,7 @@ const S = {
   perfiles:[], auditorias:[],
   auditoria:null, respuestas:{}, respuestasDe:null,
   filtroProceso:"", filtroEstado:"", filtroTexto:"", filtroMarco:"", buscarProceso:"",
+  editando:{},
   normaConsulta:"fssc_empaques", procesoConsulta:"",
   informeProceso:"__todos__", canal:null
 };
@@ -1417,6 +1429,11 @@ const Repo = {
   async saveRespuesta(auditId,itemId,r){
     const {error} = await sb.from("respuestas")
       .upsert(respToDB(auditId,itemId,r), {onConflict:"auditoria_id,item_id"});
+    if(error) throw error;
+  },
+  async deleteRespuesta(auditId,itemId){
+    const {error} = await sb.from("respuestas").delete()
+      .eq("auditoria_id",auditId).eq("item_id",itemId);
     if(error) throw error;
   }
 };
@@ -1782,9 +1799,16 @@ function selectorProcesosHTML(n){
   });
   return h+'</div></div>';
 }
+/* Un requisito está registrado cuando ya se le dio un resultado. Mientras lo está,
+   sus campos quedan bloqueados: para tocarlos hay que pulsar Modificar. */
+function registrado(r){ return !!(r && r.cumple && r.cumple!=="Pendiente"); }
+function enEdicion(it){ return !registrado(S.respuestas[it.id]) || !!S.editando[it.id]; }
+
 function itemHTML(it){
-  const r=S.respuestas[it.id]||{}, dis=puedeEditar()?"":" disabled", verNC=esNC(r);
-  return '<div class="item" data-item="'+esc(it.id)+'"><div class="item-top">'+
+  const r=S.respuestas[it.id]||{}, verNC=esNC(r);
+  const bloqueado = !puedeEditar() || !enEdicion(it);
+  const dis = bloqueado ? " disabled" : "";
+  return '<div class="item'+(bloqueado?' bloqueado':'')+'" data-item="'+esc(it.id)+'"><div class="item-top">'+
     '<div class="item-no">'+it.no+'</div><div class="item-main">'+
     '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:5px">'+
     '<span class="clause">'+esc(it.c)+'</span><span class="badge b-na" style="font-size:10px">'+esc(it.m)+'</span>'+
@@ -1802,7 +1826,39 @@ function itemHTML(it){
     '<div class="field"><label>Tipo de hallazgo</label><select data-f="tipoHallazgo"'+dis+'>'+
       TIPOS_HALLAZGO.map(function(v){return '<option value="'+esc(v)+'"'+((r.tipoHallazgo||"")===v?' selected':'')+'>'+esc(v||"— Sin clasificar —")+'</option>';}).join("")+'</select></div>'+
     '<div class="full js-ncwrap"'+(verNC?'':' hidden')+'>'+ncBoxHTML(it,r,dis)+'</div>'+
-    '</div></div></div></div>';
+    '</div>'+accionesHTML(it,r)+'</div></div></div>';
+}
+/* Guardar, modificar y eliminar lo registrado en cada requisito. */
+function accionesHTML(it,r){
+  if(!puedeEditar()) return "";
+  const reg=registrado(r), editando=enEdicion(it);
+  let estado, clase;
+  if(reg && !editando){
+    estado="Registrado"+(r.auditor?" por "+r.auditor:"")+(r.actualizadoEn?" · "+horaCorta(r.actualizadoEn):"");
+    clase="ok";
+  }else if(reg){
+    estado="Pendiente de guardar";
+    clase="edit";
+  }else{
+    estado="Sin registrar";
+    clase="";
+  }
+  let botones;
+  if(reg && !editando){
+    botones='<button class="btn btn-sm" data-act="modificarItem">Modificar</button>'+
+      '<button class="btn btn-sm btn-danger" data-act="eliminarItem">Eliminar</button>';
+  }else{
+    botones='<button class="btn btn-sm btn-primary" data-act="guardarItem">Guardar</button>'+
+      (reg?'<button class="btn btn-sm" data-act="cancelarItem">Cancelar</button>':'')+
+      (reg?'<button class="btn btn-sm btn-danger" data-act="eliminarItem">Eliminar</button>':'');
+  }
+  return '<div class="item-acciones"><span class="est '+clase+'">'+esc(estado)+'</span>'+
+    '<span class="bts">'+botones+'</span></div>';
+}
+function horaCorta(iso){
+  const d=new Date(iso);
+  if(isNaN(d)) return "";
+  return d.toLocaleString("es",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
 }
 /* Grupo de requisitos comunes: una sola verificación que satisface varias cláusulas. */
 function grupoHTML(it){
@@ -1848,6 +1904,8 @@ const pendGuardado={};
 function marcarRespuesta(itemId,campo,valor,nodo){
   const r=Object.assign({},S.respuestas[itemId]||{});
   r[campo]=valor;
+  // mientras teclea sigue en edición: los campos no se bloquean hasta pulsar Guardar
+  S.editando[itemId]=true;
   r.auditor=S.perfil?S.perfil.nombre:"";
   r.actualizadoEn=new Date().toISOString();
   if(campo==="cumple"){
@@ -1906,6 +1964,12 @@ function refrescarItem(nodo,r,campo){
   }
   const f=$(".js-saved",nodo);
   if(f){ f.classList.add("show"); clearTimeout(f._t); f._t=setTimeout(function(){f.classList.remove("show");},1400); }
+  // la barra de acciones refleja el estado nuevo sin repintar toda la lista
+  const acc=$(".item-acciones",nodo), it=itemById(S.auditoria?S.auditoria.normaId:"",nodo.dataset.item);
+  if(acc && it){
+    const nuevo=accionesHTML(it,r);
+    if(nuevo){ acc.outerHTML=nuevo; wire(); }
+  }
   actualizarCabeceraProceso(nodo.closest(".proc"));
 }
 function actualizarCabeceraProceso(procNode){
@@ -1936,6 +2000,7 @@ async function abrirAuditoria(id){
   if(!a) return;
   S.auditoria=a;
   S.filtroProceso=""; S.filtroEstado=""; S.filtroTexto=""; S.filtroMarco=""; S.buscarProceso="";
+  S.editando={};
   try{ S.respuestas=await Repo.listRespuestas(id); S.respuestasDe=id; }
   catch(e){ S.respuestas={}; toast("No se pudieron cargar las respuestas: "+e.message,"error"); }
   suscribirRespuestas(id);
@@ -2232,6 +2297,53 @@ function wire(){
     else if(act==="buscarConsulta"){ el.oninput=debounce(function(){ S.filtroTexto=el.value; render(); enfocar('[data-act="buscarConsulta"]'); },350); }
     else if(act==="filtroProceso"){ el.onchange=function(){ S.filtroProceso=el.value; render(); }; }
     else if(act==="elegirProceso"){ el.onclick=function(){ S.filtroProceso=el.dataset.proc; S.filtroEstado=""; S.filtroTexto=""; S.filtroMarco=""; render(); }; }
+    else if(act==="guardarItem"){
+      el.onclick=async function(){
+        const nodo=el.closest(".item"), id=nodo.dataset.item;
+        const r=S.respuestas[id];
+        if(!registrado(r)){ toast("Indique el resultado de la verificación antes de guardar.","error"); return; }
+        el.disabled=true;
+        try{
+          clearTimeout(pendGuardado[id]);
+          await Repo.saveRespuesta(S.auditoria.id,id,r);
+          await actualizarResumenAuditoria();
+          delete S.editando[id];
+          toast("Requisito guardado.","ok");
+          render();
+        }catch(e){ el.disabled=false; toast("No se pudo guardar: "+e.message,"error"); }
+      };
+    }
+    else if(act==="modificarItem"){
+      el.onclick=function(){ S.editando[el.closest(".item").dataset.item]=true; render(); };
+    }
+    else if(act==="cancelarItem"){
+      el.onclick=async function(){
+        const id=el.closest(".item").dataset.item;
+        delete S.editando[id];
+        // se vuelve a lo último guardado en la base, descartando lo tecleado
+        try{ S.respuestas=await Repo.listRespuestas(S.auditoria.id); }catch(e){}
+        render();
+      };
+    }
+    else if(act==="eliminarItem"){
+      el.onclick=function(){
+        const nodo=el.closest(".item"), id=nodo.dataset.item;
+        const it=itemById(S.auditoria.normaId,id);
+        abrirModal("Eliminar el registro del requisito",
+          '<p style="font-size:14px;line-height:1.55">Se borrará lo registrado en <strong>'+esc(it.c)+' — '+esc(it.t)+'</strong>: la evidencia documental, las observaciones, el resultado, el tipo de hallazgo y la declaración.</p>'+
+          '<p style="font-size:13px;color:var(--ink-3);margin-top:8px">El requisito vuelve a quedar pendiente de evaluación. Esta acción no se puede deshacer.</p>',
+          async function(){
+            try{
+              clearTimeout(pendGuardado[id]);
+              await Repo.deleteRespuesta(S.auditoria.id,id);
+              delete S.respuestas[id]; delete S.editando[id];
+              await actualizarResumenAuditoria();
+              toast("Registro eliminado.","ok");
+              render();
+            }catch(e){ toast("No se pudo eliminar: "+e.message,"error"); }
+          },"Eliminar registro");
+      };
+    }
     else if(act==="cambiarProceso"){ el.onclick=function(){ S.filtroProceso=""; S.filtroEstado=""; S.filtroTexto=""; S.filtroMarco=""; render(); }; }
     else if(act==="buscarProceso"){ el.oninput=debounce(function(){ S.buscarProceso=el.value; render(); enfocar('[data-act="buscarProceso"]'); },300); }
     else if(act==="filtroMarco"){ el.onchange=function(){ S.filtroMarco=el.value; render(); }; }
