@@ -73,6 +73,10 @@ Los campos siguen el orden real de la verificación:
 2. **Observaciones**: lo observado en esos documentos
 3. **Resultado**: Cumple / Cumple Parcialmente / No Cumple / No Aplica / Pendiente
 4. **Tipo de hallazgo**: Conformidad, Observación, NC Menor, NC Mayor, NC Crítica
+
+El resultado y el tipo de hallazgo se eligen con **botones**, no con desplegables: las
+opciones están a la vista y cada una lleva el color de su estado, que pasa al fondo al
+seleccionarla. Así se ve de un vistazo en qué quedó cada requisito.
 5. **Declaración de hallazgo sugerido**: requisito + evidencia objetiva + desviación
 
 La aplicación llega hasta la declaración del hallazgo. La gestión de las acciones

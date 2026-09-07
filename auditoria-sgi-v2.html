@@ -261,6 +261,34 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var
 .nc-auto[hidden]{display:none}
 .saved-flag{font-family:var(--font-m);font-size:10.5px;color:var(--ok);opacity:0;transition:opacity .2s}
 .saved-flag.show{opacity:1}
+/* --- Selección por botones --- */
+.toggle{display:flex;flex-wrap:wrap;gap:6px}
+.t-op{font-family:var(--font-d);font-size:12.5px;font-weight:600;line-height:1.2;
+  padding:8px 13px;border-radius:5px;cursor:pointer;background:var(--surface);
+  border:1px solid var(--line);color:var(--ink-3);transition:background .12s,border-color .12s,color .12s}
+.t-op:hover:not(:disabled):not(.on){background:var(--surface-2);color:var(--ink-2)}
+.t-op:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.t-op:disabled{cursor:default}
+/* cada opción lleva el color de su estado… */
+.t-op.t-ok{color:var(--ok)}
+.t-op.t-warn{color:var(--warn)}
+.t-op.t-bad{color:var(--bad)}
+.t-op.t-crit{color:var(--crit)}
+.t-op.t-na,.t-op.t-pend{color:var(--ink-3)}
+/* …y al elegirla ese color pasa al fondo. Estas reglas van después de las de
+   arriba: comparten especificidad y debe ganar la del estado seleccionado. */
+.t-op.on{color:var(--on-accent);border-color:transparent}
+.t-op.t-ok.on{background:var(--ok)}
+.t-op.t-warn.on{background:var(--warn)}
+.t-op.t-bad.on{background:var(--bad)}
+.t-op.t-crit.on{background:var(--crit)}
+.t-op.t-na.on{background:var(--na)}
+.t-op.t-pend.on{background:var(--pend)}
+.t-op::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
+  margin-right:7px;vertical-align:1px;background:currentColor;opacity:.45}
+.t-op.on::before{opacity:1;background:var(--on-accent)}
+.toggle.bloq .t-op:not(.on){opacity:.4}
+.toggle.bloq .t-op{cursor:default}
 .transv{font-family:var(--font-m);font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
   color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:1px 6px;white-space:nowrap}
 .item-acciones{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between;
@@ -1869,6 +1897,27 @@ function selectorProcesosHTML(n){
   });
   return h+'</div></div>';
 }
+/* Resultado y tipo de hallazgo se eligen con botones, no con desplegables: son pocas
+   opciones y conviene verlas todas y que el color diga en qué estado quedó. */
+const CLASE_RESULTADO = {
+  "Cumple":"t-ok", "Cumple Parcialmente":"t-warn", "No Cumple":"t-bad",
+  "No Aplica":"t-na", "Pendiente":"t-pend"
+};
+const CLASE_TIPO = {
+  "Conformidad":"t-ok", "Observación":"t-warn",
+  "No Conformidad Menor":"t-bad", "No Conformidad Mayor":"t-bad",
+  "No Conformidad Crítica":"t-crit", "No Aplica":"t-na", "":"t-pend"
+};
+function toggleHTML(campo, opciones, valor, clases, etiquetaVacia, bloqueado){
+  return '<div class="toggle'+(bloqueado?' bloq':'')+'" role="radiogroup" data-toggle="'+esc(campo)+'"'+
+    ' aria-label="'+esc(campo==="cumple"?"Resultado de la verificación":"Tipo de hallazgo")+'">'+
+    opciones.map(function(v){
+      const sel = v===valor;
+      return '<button type="button" class="t-op '+(clases[v]||"t-pend")+(sel?' on':'')+'"'+
+        ' data-toggle-v="'+esc(v)+'" role="radio" aria-checked="'+(sel?"true":"false")+'"'+
+        (bloqueado?' disabled':'')+'>'+esc(v||etiquetaVacia||"—")+'</button>';
+    }).join("")+'</div>';
+}
 /* Un requisito está registrado cuando ya se le dio un resultado. Mientras lo está,
    sus campos quedan bloqueados: para tocarlos hay que pulsar Modificar. */
 function registrado(r){ return !!(r && r.cumple && r.cumple!=="Pendiente"); }
@@ -1892,10 +1941,10 @@ function itemHTML(it){
       '<textarea data-f="evidencia" rows="3" placeholder="Anote los documentos revisados: código, nombre, revisión y fecha. Ejemplo: DIR-PO-101 Política de inocuidad Rev. 00"'+dis+'>'+esc(r.evidencia||"")+'</textarea></div>'+
     '<div class="field full"><label>Observaciones</label>'+
       '<textarea data-f="hallazgo" rows="3" placeholder="Describa lo observado en esos documentos: la conformidad verificada o la desviación encontrada"'+dis+'>'+esc(r.hallazgo||"")+'</textarea></div>'+
-    '<div class="field"><label>Resultado de la verificación</label><select data-f="cumple"'+dis+'>'+
-      RESULTADOS.map(function(v){return '<option value="'+esc(v)+'"'+((r.cumple||"Pendiente")===v?' selected':'')+'>'+esc(v)+'</option>';}).join("")+'</select></div>'+
-    '<div class="field"><label>Tipo de hallazgo</label><select data-f="tipoHallazgo"'+dis+'>'+
-      TIPOS_HALLAZGO.map(function(v){return '<option value="'+esc(v)+'"'+((r.tipoHallazgo||"")===v?' selected':'')+'>'+esc(v||"— Sin clasificar —")+'</option>';}).join("")+'</select></div>'+
+    '<div class="field full"><label>Resultado de la verificación</label>'+
+      toggleHTML("cumple",RESULTADOS,r.cumple||"Pendiente",CLASE_RESULTADO,null,bloqueado)+'</div>'+
+    '<div class="field full"><label>Tipo de hallazgo</label>'+
+      toggleHTML("tipoHallazgo",TIPOS_HALLAZGO,r.tipoHallazgo||"",CLASE_TIPO,"— Sin clasificar —",bloqueado)+'</div>'+
     '<div class="full js-ncwrap"'+(verNC?'':' hidden')+'>'+ncBoxHTML(it,r,dis)+'</div>'+
     '</div>'+accionesHTML(it,r)+'</div></div></div>';
 }
@@ -2016,13 +2065,20 @@ function marcarRespuesta(itemId,campo,valor,nodo){
     }catch(e){ toast("No se pudo guardar el registro: "+e.message,"error"); }
   },500);
 }
+function marcarToggle(nodo,campo,valor){
+  const g=$('.toggle[data-toggle="'+campo+'"]',nodo);
+  if(!g) return;
+  $$(".t-op",g).forEach(function(b){
+    const sel=b.dataset.toggleV===valor;
+    b.classList.toggle("on",sel);
+    b.setAttribute("aria-checked",sel?"true":"false");
+  });
+}
 function refrescarItem(nodo,r,campo){
   const b=$(".js-badge",nodo); if(b) b.innerHTML=badgeResultado(r.cumple);
   const bt=$(".js-badge-tipo",nodo); if(bt) bt.innerHTML=badgeTipo(r.tipoHallazgo);
-  const st=$('select[data-f="tipoHallazgo"]',nodo);
-  if(st && (campo==="cumple"||campo==="hallazgo")) st.value=r.tipoHallazgo||"";
-  const sc=$('select[data-f="cumple"]',nodo);
-  if(sc && campo==="hallazgo" && sc.value!==(r.cumple||"Pendiente")) sc.value=r.cumple||"Pendiente";
+  marcarToggle(nodo,"cumple",r.cumple||"Pendiente");
+  marcarToggle(nodo,"tipoHallazgo",r.tipoHallazgo||"");
   const w=$(".js-ncwrap",nodo);
   if(w){
     w.hidden=!esNC(r);
@@ -2096,8 +2152,8 @@ function suscribirRespuestas(auditId){
           const r = S.respuestas[row.item_id] || {};
           const b=$(".js-badge",nodo); if(b) b.innerHTML=badgeResultado(r.cumple);
           const bt=$(".js-badge-tipo",nodo); if(bt) bt.innerHTML=badgeTipo(r.tipoHallazgo);
-          const sc=$('select[data-f="cumple"]',nodo); if(sc) sc.value=r.cumple||"Pendiente";
-          const st2=$('select[data-f="tipoHallazgo"]',nodo); if(st2) st2.value=r.tipoHallazgo||"";
+          marcarToggle(nodo,"cumple",r.cumple||"Pendiente");
+          marcarToggle(nodo,"tipoHallazgo",r.tipoHallazgo||"");
           const ev=$('textarea[data-f="evidencia"]',nodo); if(ev) ev.value=r.evidencia||"";
           const ha=$('textarea[data-f="hallazgo"]',nodo); if(ha) ha.value=r.hallazgo||"";
           const w=$(".js-ncwrap",nodo); if(w) w.hidden=!esNC(r);
@@ -2492,6 +2548,16 @@ function wire(){
         }catch(e){ toast("No se pudo actualizar el usuario: "+e.message,"error"); }
       };
     }
+  });
+
+  $$(".item .toggle").forEach(function(g){
+    if(g._wiredT) return; g._wiredT=true;
+    const nodo=g.closest(".item"), id=nodo.dataset.item, campo=g.dataset.toggle;
+    g.addEventListener("click",function(ev){
+      const b=ev.target.closest(".t-op");
+      if(!b || b.disabled || !g.contains(b)) return;
+      marcarRespuesta(id,campo,b.dataset.toggleV,nodo);
+    });
   });
 
   $$(".item [data-f]").forEach(function(el){
