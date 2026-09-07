@@ -8,15 +8,34 @@ evidencia objetiva de cada requisito y generar los informes por proceso.
 Cada auditoría se ejecuta **contra una norma**. Las normas de inocuidad se componen de
 varios marcos normativos que se auditan juntos pero se reportan por separado.
 
-| Norma | Empresa | Marcos normativos | Requisitos | Procesos |
-|---|---|---|---:|---:|
-| ISO 9001:2015 | COGUSA · DISCA | ISO 9001:2015 | 44 | 10 |
-| FSSC 22000 v6 — Producción de empaques (Cat. I) | COGUSA | ISO 22000:2018 (69) · INTE/ISO/TS 22002-4:2014 (64) · FSSC v6 §2.5 (64) | 197 | 13 |
-| FSSC 22000 v6 — Almacenamiento y distribución (Cat. G) | DISCA | ISO 22000:2018 (67) · ISO/TS 22002-5:2019 (90) · FSSC v6 (49) | 206 | 4 |
-| FSC Cadena de Custodia | COGUSA | FSC-STD-40-004 V3-1, partes I, II y III | 67 | 9 |
+| Norma | Empresa | Marcos normativos | En la lista | A evaluar | Procesos |
+|---|---|---|---:|---:|---:|
+| ISO 9001:2015 | COGUSA | ISO 9001:2015 | 65 | 155 | 16 |
+| FSSC 22000 v6 — Producción de empaques (Cat. I) | COGUSA | ISO 22000:2018 (69) · INTE/ISO/TS 22002-4:2014 (64) · FSSC v6 §2.5 (64) | 197 | 285 | 12 |
+| FSSC 22000 v6 — Almacenamiento y distribución (Cat. G) | DISCA | ISO 22000:2018 (67) · ISO/TS 22002-5:2019 (90) · FSSC v6 (49) | 206 | 206 | 4 |
+| FSC Cadena de Custodia | COGUSA | FSC-STD-40-004 V3-1, partes I, II y III | 67 | 67 | 9 |
 
-Las listas de COGUSA y DISCA reproducen las listas de verificación de la organización.
-La de DISCA proviene de `Lista_Verificacion_ISO22000_FSSCv6_con_Proceso.xlsx`.
+«En la lista» es el número de requisitos redactados; «a evaluar» incluye la expansión de
+los requisitos transversales (ver abajo).
+
+Las listas reproducen las listas de verificación de la organización:
+`Lista_Verificacion_ISO9001_2015.xlsx` y
+`Lista_Verificacion_ISO22000_FSSCv6_con_Proceso.xlsx`.
+
+## Requisitos transversales
+
+Un requisito marcado en la lista como **«Todos los procesos»** no pertenece a un proceso
+aparte: se audita en **cada uno** de ellos. La aplicación lo expande a una copia por
+proceso, cada una con su propia evidencia, resultado y hallazgo, porque cada área
+demuestra su cumplimiento con sus propios registros.
+
+| Norma | Requisitos transversales | Procesos | Instancias |
+|---|---:|---:|---:|
+| ISO 9001:2015 | 6 | 16 | 96 |
+| FSSC 22000 v6 — COGUSA | 8 | 12 | 96 |
+
+En la lista de verificación aparecen con la marca **Transversal**. «Todos los procesos»
+deja de existir como proceso seleccionable.
 
 > La lista de **FSC Cadena de Custodia** está redactada sobre la estructura oficial de
 > FSC-STD-40-004 V3-1 y se marca en la aplicación como **borrador**: coteje el texto de
