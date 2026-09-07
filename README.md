@@ -138,6 +138,7 @@ e imprimir a PDF.
 |---|---|
 | `auditoria-sgi-v2.html` | **Versión en revisión.** Cuatro normas, lista completa de DISCA, requisitos comunes correlacionados, ingreso por proceso y hallazgo sugerido automático. Pendiente de aprobación para pasar a la raíz. |
 | `index.html` | **Versión en producción.** Tres normas. Se sirve en la raíz del dominio. |
+| `confirmado.html` | Página de aterrizaje de los correos de Supabase: confirma la cuenta, avisa si el enlace venció y permite pedir uno nuevo. |
 | `auditoria-sgi.html` | Versión autónoma publicada como Artifact de Claude, con almacenamiento propio. Se conserva como respaldo. |
 
 Ambas son un único archivo HTML sin proceso de compilación.
@@ -203,3 +204,20 @@ reflejan información interna de la organización.
 
 Si Supabase exige confirmación de correo y prefiere omitirla para uso interno,
 desactive *Confirm email* en el panel: **Authentication → Sign In / Providers → Email**.
+
+### Confirmación de correo
+
+Las aplicaciones envían el enlace de confirmación a `confirmado.html`, resuelto de forma
+relativa a la página, en lugar de depender del *Site URL* del proyecto. Para que Supabase
+acepte ese destino hay que registrarlo en **Authentication → URL Configuration**:
+
+| Campo | Valor |
+|---|---|
+| Site URL | `https://avgomezf-afk.github.io/auditoriainterna/` |
+| Redirect URLs | `https://avgomezf-afk.github.io/auditoriainterna/**` |
+
+Mientras el *Site URL* siga en `http://localhost:3000`, los correos apuntarán a localhost
+y el enlace no abrirá nada en la máquina del usuario.
+
+La página distingue tres situaciones: cuenta confirmada, enlace vencido o inválido —con la
+opción de reenviar— y visita directa sin datos de confirmación.

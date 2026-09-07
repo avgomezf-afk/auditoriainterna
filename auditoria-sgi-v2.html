@@ -1114,6 +1114,10 @@ const SUPABASE_KEY = "sb_publishable___DmVRyHiiN3jRx4HoT53Q_cwJTfNnU";
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
 });
+/* A dónde vuelve el usuario desde el correo. Se resuelve relativo a esta página para
+   que sirva igual en GitHub Pages que en un servidor local, en vez de depender del
+   Site URL del proyecto de Supabase, que apunta a localhost. */
+const URL_CONFIRMACION = new URL("confirmado.html", location.href).href;
 
 /* ---------- Definición de normas ---------- */
 /* ---------- Definición de normas ---------- */
@@ -1542,7 +1546,7 @@ $("#btnRegister").onclick = async function(){
   $("#btnRegister").disabled=true; $("#btnRegister").textContent="Creando…";
   const {data,error} = await sb.auth.signUp({
     email:correo, password:pass,
-    options:{ data:{ nombre:nombre, rol:rol } }
+    options:{ data:{ nombre:nombre, rol:rol }, emailRedirectTo:URL_CONFIRMACION }
   });
   $("#btnRegister").disabled=false; $("#btnRegister").textContent="Crear cuenta";
   if(error) return msgLogin("No se pudo crear la cuenta: "+error.message);
@@ -1555,7 +1559,7 @@ $("#btnRegister").onclick = async function(){
 $("#btnReset").onclick = async function(){
   const correo=$("#inCorreo").value.trim();
   if(correo.indexOf("@")<1) return msgLogin("Escriba su correo para enviarle el enlace de recuperación.");
-  const {error} = await sb.auth.resetPasswordForEmail(correo,{redirectTo:location.href});
+  const {error} = await sb.auth.resetPasswordForEmail(correo,{redirectTo:URL_CONFIRMACION});
   if(error) return msgLogin("No se pudo enviar el correo de recuperación.");
   msgLogin("Le enviamos un enlace para restablecer su contraseña.","ok");
 };
