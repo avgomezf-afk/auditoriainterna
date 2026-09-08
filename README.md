@@ -11,9 +11,9 @@ varios marcos normativos que se auditan juntos pero se reportan por separado.
 | Norma | Empresa | Marcos normativos | En la lista | A evaluar | Procesos |
 |---|---|---|---:|---:|---:|
 | ISO 9001:2015 | COGUSA | ISO 9001:2015 | 65 | 155 | 16 |
-| FSSC 22000 v6 — Producción de empaques (Cat. I) | COGUSA | ISO 22000:2018 (69) · INTE/ISO/TS 22002-4:2014 (64) · FSSC v6 §2.5 (64) | 197 | 285 | 12 |
+| FSSC 22000 v6 — Producción de empaques (Cat. I) | COGUSA | ISO 22000:2018 (69) · INTE/ISO/TS 22002-4:2014 (64) · FSSC v6 §2.5 (64) | 197 | 296 | 13 |
 | FSSC 22000 v6 — Almacenamiento y distribución (Cat. G) | DISCA | ISO 22000:2018 (67) · ISO/TS 22002-5:2019 (90) · FSSC v6 (49) | 206 | 206 | 4 |
-| FSC Cadena de Custodia | COGUSA | FSC-STD-40-004 V3-1, partes I, II y III | 67 | 67 | 9 |
+| FSC Cadena de Custodia | COGUSA | FSC-STD-40-004 V3-1, partes I, II y III | 67 | 83 | 10 |
 
 «En la lista» es el número de requisitos redactados; «a evaluar» es cuántas
 verificaciones produce la asignación de origen, contando una por cada proceso al que se
@@ -25,10 +25,17 @@ Las listas reproducen las listas de verificación de la organización:
 
 ## Qué se audita y dónde
 
-La lista fuente de cada norma trae un proceso propuesto por requisito, y marca
-**«Todos los procesos»** el que se audita en cada área con su propia evidencia. Eso es
+La lista fuente de cada norma trae un proceso propuesto por requisito, marca
+**«Todos los procesos»** el que se audita en cada área con su propia evidencia, y en
+unos pocos casos propone **varias áreas a la vez** (campo `ps`): el reproceso y la
+contabilidad de materiales FSC ocurren tanto en corrugado como en conversión. Eso es
 solo el punto de partida: **la asignación real la define la organización** desde
 **Listas de verificación → Configurar la lista**.
+
+Corrugación y conversión son **procesos separados**. Antes iban juntos en uno solo
+—«Producción (Corrugación y Conversión)»— pero se auditan por aparte, con su propio
+personal y sus propios registros. Los 19 requisitos que estaban en el proceso combinado
+quedaron asignados a **ambos**; desde el configurador se quita el que no corresponda.
 
 Un requisito puede auditarse en **varios procesos** —cada uno lo demuestra con sus
 propios registros— o en **ninguno**, si se decide no evaluarlo. La lista efectiva es,
