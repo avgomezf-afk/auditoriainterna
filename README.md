@@ -37,6 +37,25 @@ Corrugación y conversión son **procesos separados**. Antes iban juntos en uno 
 personal y sus propios registros. Los 19 requisitos que estaban en el proceso combinado
 quedaron asignados a **ambos**; desde el configurador se quita el que no corresponda.
 
+### Nombres de los procesos
+
+Un proceso es el mismo solo si se escribe igual: la aplicación los identifica por su
+nombre, así que una variante de redacción crea un proceso aparte en el selector. Las
+listas fuente traían tres pares que se unificaron a la forma mayoritaria:
+
+| Se escribía también | Forma única |
+|---|---|
+| Aseguramiento de la Calidad | **Aseguramiento de Calidad** |
+| Control de Papel | **Control de papel** |
+| Mantenimiento Infraestructura | **Mantenimiento de Infraestructura** |
+
+Las tres variantes venían solo de la lista de ISO 9001 y no colisionaban dentro de ella,
+de modo que la unificación no cambió ningún conteo: corrigió el vocabulario para que un
+proceso se llame igual en las cuatro normas.
+
+> Queda sin resolver si **«Almacenamiento»**, que solo usa la lista de FSC, es el mismo
+> proceso que **«Almacén»** de las demás. Se dejaron separados por no darlo por sentado.
+
 Un requisito puede auditarse en **varios procesos** —cada uno lo demuestra con sus
 propios registros— o en **ninguno**, si se decide no evaluarlo. La lista efectiva es,
 por tanto, un par *(requisito, proceso)* por fila. Cuando el auditor entra a un proceso
