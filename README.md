@@ -15,27 +15,50 @@ varios marcos normativos que se auditan juntos pero se reportan por separado.
 | FSSC 22000 v6 — Almacenamiento y distribución (Cat. G) | DISCA | ISO 22000:2018 (67) · ISO/TS 22002-5:2019 (90) · FSSC v6 (49) | 206 | 206 | 4 |
 | FSC Cadena de Custodia | COGUSA | FSC-STD-40-004 V3-1, partes I, II y III | 67 | 67 | 9 |
 
-«En la lista» es el número de requisitos redactados; «a evaluar» incluye la expansión de
-los requisitos transversales (ver abajo).
+«En la lista» es el número de requisitos redactados; «a evaluar» es cuántas
+verificaciones produce la asignación de origen, contando una por cada proceso al que se
+audita un requisito. Ambas columnas cambian al configurar la lista (ver abajo).
 
 Las listas reproducen las listas de verificación de la organización:
 `Lista_Verificacion_ISO9001_2015.xlsx` y
 `Lista_Verificacion_ISO22000_FSSCv6_con_Proceso.xlsx`.
 
-## Requisitos transversales
+## Qué se audita y dónde
 
-Un requisito marcado en la lista como **«Todos los procesos»** no pertenece a un proceso
-aparte: se audita en **cada uno** de ellos. La aplicación lo expande a una copia por
-proceso, cada una con su propia evidencia, resultado y hallazgo, porque cada área
-demuestra su cumplimiento con sus propios registros.
+La lista fuente de cada norma trae un proceso propuesto por requisito, y marca
+**«Todos los procesos»** el que se audita en cada área con su propia evidencia. Eso es
+solo el punto de partida: **la asignación real la define la organización** desde
+**Listas de verificación → Configurar la lista**.
 
-| Norma | Requisitos transversales | Procesos | Instancias |
-|---|---:|---:|---:|
-| ISO 9001:2015 | 6 | 16 | 96 |
-| FSSC 22000 v6 — COGUSA | 8 | 12 | 96 |
+Un requisito puede auditarse en **varios procesos** —cada uno lo demuestra con sus
+propios registros— o en **ninguno**, si se decide no evaluarlo. La lista efectiva es,
+por tanto, un par *(requisito, proceso)* por fila. Cuando el auditor entra a un proceso
+ve exactamente los requisitos que allí se le asignaron.
 
-En la lista de verificación aparecen con la marca **Transversal**. «Todos los procesos»
-deja de existir como proceso seleccionable.
+El configurador ofrece dos formas de trabajar sobre la misma matriz:
+
+- **Por requisito** (vista de entrada) — cada requisito lleva **al lado su propia lista
+  de procesos con scroll**, donde se marcan uno o varios sin salir de la fila. La
+  cabecera de cada lista indica cuántos procesos van seleccionados y ofrece *Todos* y
+  *Ninguno*; un requisito sin ninguno queda resaltado como «No se evalúa».
+- **Por proceso** — se elige un proceso y se marca, sobre la norma completa, qué
+  requisitos le tocan. Es la forma en que se planifica una auditoría de área.
+
+También se pueden **agregar procesos** que la lista fuente no traía; quedan guardados en
+cuanto tienen al menos un requisito asignado.
+
+Los cambios se trabajan sobre un **borrador** y solo se escriben al pulsar **Guardar
+cambios**: cambiar la asignación reordena la lista de verificación de toda la
+organización, no conviene hacerlo clic a clic. Antes de guardar, la aplicación resume
+cuántas asignaciones se agregan y se retiran, cuántos requisitos quedarían sin evaluar y
+si hay auditorías en curso de esa norma. **Restablecer** descarta la configuración
+guardada y devuelve la norma a la asignación de la lista fuente.
+
+Cada fila de la lista de verificación se identifica por el requisito **y** el proceso
+(`iso9001-r17@Compras`), de modo que reasignar un requisito no mueve el registro
+guardado de ningún otro. Los requisitos importados a una norma después de configurarla
+conservan su asignación de origen, para que ampliar una lista no los deje fuera de la
+auditoría sin avisar.
 
 > La lista de **FSC Cadena de Custodia** está redactada sobre la estructura oficial de
 > FSC-STD-40-004 V3-1 y se marca en la aplicación como **borrador**: coteje el texto de
@@ -63,7 +86,8 @@ afectadas.
 2. Abre la auditoría y **elige su proceso** de una lista con scroll que muestra, para cada
    uno, cuántos requisitos tiene, cuántos lleva evaluados, cuántas NC y el porcentaje de
    cumplimiento.
-3. Se despliega la lista de verificación predefinida de ese proceso.
+3. Se despliega la lista de verificación de ese proceso: los requisitos que se le
+   asignaron en **Listas de verificación → Configurar la lista**.
 
 ## Qué registra cada requisito
 
@@ -140,7 +164,7 @@ e imprimir a PDF.
 
 | Archivo | Descripción |
 |---|---|
-| `auditoria-sgi-v2.html` | **Versión en revisión.** Cuatro normas, lista completa de DISCA, requisitos comunes correlacionados, ingreso por proceso y hallazgo sugerido automático. Pendiente de aprobación para pasar a la raíz. |
+| `auditoria-sgi-v2.html` | **Versión en revisión.** Cuatro normas, lista completa de DISCA, requisitos comunes correlacionados, ingreso por proceso, listas de verificación configurables y hallazgo sugerido automático. Pendiente de aprobación para pasar a la raíz. |
 | `index.html` | **Versión en producción.** Tres normas. Se sirve en la raíz del dominio. |
 | `confirmado.html` | Página de aterrizaje de los correos de Supabase: confirma la cuenta, avisa si el enlace venció y permite pedir uno nuevo. |
 | `auditoria-sgi.html` | Versión autónoma publicada como Artifact de Claude, con almacenamiento propio. Se conserva como respaldo. |
@@ -167,25 +191,28 @@ Ambas son un único archivo HTML sin proceso de compilación.
 
 | Rol | Permisos |
 |---|---|
-| Administrador | Gestiona usuarios y roles, crea y **elimina** auditorías, registra hallazgos |
-| Auditor líder | Crea auditorías y registra hallazgos |
+| Administrador | Gestiona usuarios y roles, crea y **elimina** auditorías, configura y **restablece** las listas de verificación, registra hallazgos |
+| Auditor líder | Crea auditorías, configura las listas de verificación y registra hallazgos |
 | Auditor | Registra evidencia y hallazgos |
 | Consulta | Solo lectura de listas de verificación e informes |
 
 ## Base de datos
 
-Esquema en PostgreSQL (Supabase), con Row Level Security activo en las tres tablas:
+Esquema en PostgreSQL (Supabase), con Row Level Security activo en las cuatro tablas:
 
 | Tabla | Contenido |
 |---|---|
 | `perfiles` | Usuario, correo, rol y estado. Se crea automáticamente al registrarse |
 | `auditorias` | Código, norma, empresa, sitio, alcance, equipo, fechas, estado y resumen |
 | `respuestas` | Un registro por requisito auditado, con evidencia, hallazgo, declaración de NC y `nc_autogenerada` |
+| `listas_config` | Una fila por norma: a qué procesos se audita cada requisito (`asignaciones`, mapa `baseId → [procesos]`) |
 
 Reglas aplicadas:
 
 - Solo usuarios **activos** acceden a auditorías y respuestas
 - Solo **administrador** y **auditor líder** crean auditorías; solo el administrador las elimina
+- Solo **administrador** y **auditor líder** configuran las listas de verificación; solo el
+  administrador puede restablecer una norma a su asignación de origen
 - El rol **consulta** no puede escribir
 - Nadie puede auto-asignarse el rol de administrador
 - `respuestas` está publicada en Realtime: los auditores ven los registros de sus
