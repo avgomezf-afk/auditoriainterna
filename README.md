@@ -11,7 +11,7 @@ varios marcos normativos que se auditan juntos pero se reportan por separado.
 | Norma | Empresa | Marcos normativos | En la lista | A evaluar | Procesos |
 |---|---|---|---:|---:|---:|
 | ISO 9001:2015 | COGUSA | ISO 9001:2015 | 65 | 155 | 16 |
-| FSSC 22000 v6 — Producción de empaques (Cat. I) | COGUSA | ISO 22000:2018 (69) · INTE/ISO/TS 22002-4:2014 (64) · FSSC v6 §2.5 (64) | 197 | 296 | 13 |
+| FSSC 22000 v6 — Producción de empaques (Cat. I) | COGUSA | ISO 22000:2018 (67) · INTE/ISO/TS 22002-4:2014 (56) · FSSC v6 §2.5 (58) | 181 | 304 | 14 |
 | FSSC 22000 v6 — Almacenamiento y distribución (Cat. G) | DISCA | ISO 22000:2018 (67) · ISO/TS 22002-5:2019 (90) · FSSC v6 (49) | 206 | 206 | 4 |
 | FSC Cadena de Custodia | COGUSA | FSC-STD-40-004 V3-1, partes I, II y III | 67 | 83 | 10 |
 
@@ -55,6 +55,25 @@ proceso se llame igual en las cuatro normas.
 
 > Queda sin resolver si **«Almacenamiento»**, que solo usa la lista de FSC, es el mismo
 > proceso que **«Almacén»** de las demás. Se dejaron separados por no darlo por sentado.
+
+### Un requisito, una fila
+
+El xlsx de COGUSA traía **una fila por cada par requisito-proceso**, de modo que un
+requisito que se auditaba en tres áreas aparecía escrito tres veces, con idéntico
+enunciado. Con la asignación configurable eso sobra: la fila es una sola y lleva sus
+procesos. Se fusionaron **8 grupos —24 filas en 8—** y la lista de COGUSA pasó de 197 a
+181 requisitos:
+
+| Cláusula | Marco | Se auditaba en |
+|---|---|---|
+| 8.5.1.2 Características de materias primas | ISO 22000 | Sistemas de Gestión · Control de papel · Almacén |
+| 4.6.3 Materias primas entrantes | 22002-4 | Compras · Control de papel · Almacén |
+| 4.13.1 / 4.13.2 / 4.13.3 Almacenamiento y transporte | 22002-4 | Logística · Control de papel · Almacén |
+| 2.5.10 a / d.i / d.ii Transporte y depósito | FSSC v6 | Logística · Almacén · Control de papel |
+
+No confundir con las cláusulas que aparecen **dos veces con preguntas distintas** —4.1,
+4.3 y 5.1 de ISO 22000—, donde una misma cláusula se verifica en dos frentes separados.
+Esas no son duplicados y se conservan tal cual.
 
 Un requisito puede auditarse en **varios procesos** —cada uno lo demuestra con sus
 propios registros— o en **ninguno**, si se decide no evaluarlo. La lista efectiva es,
