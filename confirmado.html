@@ -64,6 +64,9 @@ p:last-of-type{margin-bottom:0}
 .reenvio{margin-top:16px;display:none;gap:8px;flex-wrap:wrap}
 .reenvio input{flex:1 1 200px;font-family:var(--font-d);font-size:13px;padding:9px 11px;
   border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--ink)}
+.formPass{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.formPass input{font-family:var(--font-d);font-size:13px;padding:9px 11px;
+  border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--ink)}
 @keyframes giro{to{transform:rotate(360deg)}}
 .girando{animation:giro 1s linear infinite}
 @media (prefers-reduced-motion:reduce){.girando{animation:none}}
@@ -148,6 +151,28 @@ function ofrecerReenvio(correo){
   if(correo) $("#correoReenvio").value = correo;
 }
 
+function pintarRecuperacion(){
+  pintar("esp","Restablecer contraseña","Escriba su contraseña nueva",
+    '<p>Ingrese una contraseña nueva para su cuenta.</p>'+
+    '<div class="formPass">'+
+      '<input type="password" id="passNueva" placeholder="Contraseña nueva (mínimo 8 caracteres)" autocomplete="new-password">'+
+      '<input type="password" id="passNueva2" placeholder="Repita la contraseña" autocomplete="new-password">'+
+      '<button class="btn pri" id="btnGuardarPass" type="button">Guardar contraseña nueva</button>'+
+    '</div>');
+  $("#btnGuardarPass").onclick = async function(){
+    const p1 = $("#passNueva").value, p2 = $("#passNueva2").value;
+    if(p1.length < 8) return aviso("La contraseña debe tener al menos 8 caracteres.","mal");
+    if(p1 !== p2) return aviso("Las contraseñas no coinciden.","mal");
+    this.disabled = true; this.textContent = "Guardando…";
+    const {error} = await sb.auth.updateUser({password:p1});
+    this.disabled = false; this.textContent = "Guardar contraseña nueva";
+    if(error) return aviso("No se pudo actualizar la contraseña: "+error.message,"mal");
+    history.replaceState(null,"",location.pathname);
+    pintar("ok","Contraseña actualizada","Ya puede ingresar con su contraseña nueva",
+      '<p>Su contraseña se actualizó correctamente.</p>', botonApp);
+  };
+}
+
 $("#btnReenviar").onclick = async function(){
   const correo = $("#correoReenvio").value.trim();
   if(correo.indexOf("@") < 1){ aviso("Escriba un correo electrónico válido.","mal"); return; }
@@ -199,6 +224,16 @@ $("#btnReenviar").onclick = async function(){
     return;
   }
 
+  if(p.tipo === "recovery"){
+    if(sesion && sesion.user){
+      pintarRecuperacion();
+    }else{
+      pintar("mal","No se pudo confirmar","El enlace no es válido",
+        '<p>No pudimos validar el enlace de recuperación. Solicítelo de nuevo desde la aplicación.</p>', botonApp);
+    }
+    return;
+  }
+
   if(sesion && sesion.user){
     const correo = sesion.user.email || "";
     // limpia el token de la barra de direcciones
@@ -207,12 +242,6 @@ $("#btnReenviar").onclick = async function(){
       '<p>Confirmamos <span class="correo">'+esc(correo)+'</span>. Ya puede ingresar al sistema de auditorías.</p>'+
       '<p>Si es la primera vez que entra, el administrador debe asignarle el rol y activar su acceso antes de que pueda registrar hallazgos.</p>',
       botonApp);
-    return;
-  }
-
-  if(p.tipo === "recovery"){
-    pintar("esp","Restablecer contraseña","Continúe en la aplicación",
-      '<p>Abra la aplicación para escribir su contraseña nueva.</p>', botonApp);
     return;
   }
 
